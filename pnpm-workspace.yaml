@@ -1,0 +1,8 @@
+allowBuilds:
+  '@automock/adapters.nestjs': true
+  '@scarf/scarf': true
+  cpu-features: true
+  esbuild: true
+  protobufjs: true
+  ssh2: true
+  unrs-resolver: true
