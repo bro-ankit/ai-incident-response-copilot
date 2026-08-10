@@ -18,7 +18,7 @@ export default defineConfig([
     languageOptions: {
       parserOptions: {
         projectService: {
-          allowDefaultProject: ['*.config.mjs', '*.config.ts'],
+          allowDefaultProject: ['*.config.mjs', '*.config.ts', 'scripts/*.ts'],
         },
         tsconfigRootDir: import.meta.dirname,
       },
@@ -34,6 +34,12 @@ export default defineConfig([
       'simple-import-sort/imports': 'error',
       'simple-import-sort/exports': 'error',
       'unused-imports/no-unused-imports': 'error',
+    },
+  },
+  {
+    files: ['scripts/**/*.ts'],
+    rules: {
+      'no-console': 'off',
     },
   },
   eslintConfigPrettier,
