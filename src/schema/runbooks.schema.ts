@@ -1,3 +1,5 @@
+import type { UUID } from 'node:crypto';
+
 import { pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 
 import { tsvector } from './tsvector.type';
@@ -9,7 +11,7 @@ export type EmbeddingModel = (typeof EMBEDDING_MODELS)[number];
 const DEFAULT_EMBEDDING_MODEL: EmbeddingModel = 'gemini-embedding-001';
 
 export const runbooksTable = pgTable('runbooks', {
-  id: uuid('id').primaryKey().defaultRandom(),
+  id: uuid('id').$type<UUID>().primaryKey().defaultRandom(),
   title: text('title').notNull(),
   content: text('content').notNull(),
   services: text('services').array().notNull().default([]),

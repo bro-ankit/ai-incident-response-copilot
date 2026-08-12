@@ -1,3 +1,5 @@
+import type { UUID } from 'node:crypto';
+
 import { Inject, Injectable } from '@nestjs/common';
 import { and, eq, inArray, isNotNull, sql } from 'drizzle-orm';
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
@@ -26,7 +28,7 @@ export class RunbooksRepository {
     return result!;
   }
 
-  async findSimilarIds(embedding: number[], limit: number, embeddingModel: EmbeddingModel): Promise<string[]> {
+  async findSimilarIds(embedding: number[], limit: number, embeddingModel: EmbeddingModel): Promise<UUID[]> {
     const client = this.txContext.getClient(this.db);
     const vector = `[${embedding.join(',')}]`;
     const distanceExpr = sql<number>`${runbooksTable.embedding} <=> ${vector}::vector`;
@@ -39,7 +41,7 @@ export class RunbooksRepository {
     return rows.map((r) => r.id);
   }
 
-  async findByLexical(query: string, limit: number): Promise<string[]> {
+  async findByLexical(query: string, limit: number): Promise<UUID[]> {
     const client = this.txContext.getClient(this.db);
     const rows = await client
       .select({ id: runbooksTable.id })
@@ -55,7 +57,7 @@ export class RunbooksRepository {
     return rows.map((r) => r.id);
   }
 
-  async findByIds(ids: string[]): Promise<RunbookSelect[]> {
+  async findByIds(ids: UUID[]): Promise<RunbookSelect[]> {
     if (ids.length === 0) return [];
     const client = this.txContext.getClient(this.db);
     return client.select().from(runbooksTable).where(inArray(runbooksTable.id, ids));

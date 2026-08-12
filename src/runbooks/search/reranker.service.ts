@@ -1,3 +1,5 @@
+import type { UUID } from 'node:crypto';
+
 import type { PreTrainedModel, PreTrainedTokenizer } from '@huggingface/transformers';
 import { AutoModelForSequenceClassification, AutoTokenizer } from '@huggingface/transformers';
 import { Injectable, OnModuleInit } from '@nestjs/common';
@@ -7,8 +9,8 @@ import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { ENV_VARIABLES } from '../../constants/env.constants';
 import { RERANKER_DEFAULTS } from './reranker.constants';
 
-export type RerankCandidate = { id: string; text: string };
-export type RerankResult = { id: string; score: number };
+export type RerankCandidate = { id: UUID; text: string };
+export type RerankResult = { id: UUID; score: number };
 
 @Injectable()
 export class RerankerService implements OnModuleInit {

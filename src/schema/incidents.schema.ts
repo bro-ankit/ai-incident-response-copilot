@@ -1,3 +1,5 @@
+import type { UUID } from 'node:crypto';
+
 import { pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 
 export const INCIDENT_SEVERITIES = ['SEV1', 'SEV2', 'SEV3', 'SEV4'] as const;
@@ -5,7 +7,7 @@ export const INCIDENT_SEVERITIES = ['SEV1', 'SEV2', 'SEV3', 'SEV4'] as const;
 export type IncidentSeverity = (typeof INCIDENT_SEVERITIES)[number];
 
 export const incidentsTable = pgTable('incidents', {
-  id: uuid('id').primaryKey().defaultRandom(),
+  id: uuid('id').$type<UUID>().primaryKey().defaultRandom(),
   title: text('title').notNull(),
   description: text('description').notNull(),
   service: text('service').notNull(),

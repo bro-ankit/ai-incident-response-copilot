@@ -1,3 +1,5 @@
+import type { UUID } from 'node:crypto';
+
 import { integer, pgTable, real, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 
 export const METRIC_OPERATIONS = [
@@ -11,7 +13,7 @@ export const METRIC_OPERATIONS = [
 export type MetricOperation = (typeof METRIC_OPERATIONS)[number];
 
 export const metricLogsTable = pgTable('metric_logs', {
-  id: uuid('id').primaryKey().defaultRandom(),
+  id: uuid('id').$type<UUID>().primaryKey().defaultRandom(),
   operation: text('operation').$type<MetricOperation>().notNull(),
   model: text('model').notNull(),
   promptTokens: integer('prompt_tokens').notNull().default(0),

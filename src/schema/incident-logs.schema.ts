@@ -1,3 +1,5 @@
+import type { UUID } from 'node:crypto';
+
 import { pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 
 import { incidentsTable } from './incidents.schema';
@@ -7,8 +9,9 @@ export const LOG_LEVELS = ['DEBUG', 'INFO', 'WARN', 'ERROR', 'FATAL'] as const;
 export type LogLevel = (typeof LOG_LEVELS)[number];
 
 export const incidentLogsTable = pgTable('incident_logs', {
-  id: uuid('id').primaryKey().defaultRandom(),
+  id: uuid('id').$type<UUID>().primaryKey().defaultRandom(),
   incidentId: uuid('incident_id')
+    .$type<UUID>()
     .notNull()
     .references(() => incidentsTable.id, { onDelete: 'cascade' }),
   timestamp: timestamp('timestamp', { withTimezone: true }).notNull(),
