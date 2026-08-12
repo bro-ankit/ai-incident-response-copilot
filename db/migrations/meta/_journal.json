@@ -15,6 +15,27 @@
       "when": 1786521740085,
       "tag": "0001_breezy_siren",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1786522172069,
+      "tag": "0002_tranquil_luminals",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1786522209409,
+      "tag": "0003_add_runbooks_hnsw_index",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1786522216112,
+      "tag": "0004_add_runbooks_tsv_gin_index",
+      "breakpoints": true
     }
   ]
 }

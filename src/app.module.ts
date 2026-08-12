@@ -8,6 +8,7 @@ import { AppService } from './app.service';
 import { DatabaseModule } from './database/database.module';
 import { MetricsModule } from './metrics/metrics.module';
 import { ResilienceModule } from './resilience';
+import { RunbooksModule } from './runbooks/runbooks.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { ResilienceModule } from './resilience';
     MetricsModule,
     DatabaseModule,
     AiModule,
+    RunbooksModule,
   ],
   controllers: [AppController],
   providers: [AppService],
