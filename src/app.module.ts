@@ -1,20 +1,15 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
 import { LoggerModule } from 'nestjs-pino';
 
-import { AiModule } from './ai/ai.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { DatabaseModule } from './database/database.module';
-import { MetricsModule } from './metrics/metrics.module';
-import { ResilienceModule } from './resilience';
+import { CoreInfraModule } from './core-infra.module';
+import { IncidentsModule } from './incidents/incidents.module';
 import { RunbooksModule } from './runbooks/runbooks.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-    }),
+    CoreInfraModule,
     LoggerModule.forRoot({
       pinoHttp: {
         transport: process.env['NODE_ENV'] !== 'production' ? { target: 'pino-pretty' } : undefined,
@@ -24,11 +19,8 @@ import { RunbooksModule } from './runbooks/runbooks.module';
         },
       },
     }),
-    ResilienceModule,
-    MetricsModule,
-    DatabaseModule,
-    AiModule,
     RunbooksModule,
+    IncidentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

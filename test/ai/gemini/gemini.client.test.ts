@@ -98,7 +98,7 @@ describe('GeminiClient Unit Test', () => {
 
         expect(result).toEqual(PARSED_RESPONSE);
         expect(geminiClient.getGenerativeModel).toHaveBeenCalledWith({
-          model: 'gemini-2.5-flash',
+          model: 'gemini-3.5-flash',
           generationConfig: {
             responseMimeType: 'application/json',
             responseSchema: EXPECTED_GEMINI_SCHEMA,
@@ -146,7 +146,7 @@ describe('GeminiClient Unit Test', () => {
 
         expect(result).toBe(LLM_ANSWER);
         expect(geminiClient.getGenerativeModel).toHaveBeenCalledWith({
-          model: 'gemini-2.5-flash',
+          model: 'gemini-3.5-flash',
           systemInstruction: SYSTEM_PROMPT,
         });
         expect(mockGenerateContent).toHaveBeenCalledWith(USER_MESSAGE);
@@ -300,7 +300,7 @@ describe('GeminiClient Unit Test', () => {
 
         expect(chunks).toEqual(['Unbounded ', 'in-memory cache.']);
         expect(geminiClient.getGenerativeModel).toHaveBeenCalledWith({
-          model: 'gemini-2.5-flash',
+          model: 'gemini-3.5-flash',
           systemInstruction: SYSTEM_PROMPT,
         });
         expect(mockGenerateContentStream).toHaveBeenCalledWith(USER_MESSAGE);
@@ -321,7 +321,7 @@ describe('GeminiClient Unit Test', () => {
 
         expect(metricsReporter.record).toHaveBeenCalledWith({
           operation: 'RUNBOOK_SEARCH',
-          model: 'gemini-2.5-flash',
+          model: 'gemini-3.5-flash',
           usage: { promptTokens: 10, completionTokens: 5, totalTokens: 15 },
           estimatedCostUsd: expect.any(Number),
           durationMs: expect.any(Number),
@@ -360,7 +360,7 @@ describe('GeminiClient Unit Test', () => {
 
         expect(metricsReporter.record).toHaveBeenCalledWith({
           operation: 'RUNBOOK_SEARCH',
-          model: 'gemini-2.5-flash',
+          model: 'gemini-3.5-flash',
           usage: { promptTokens: 50, completionTokens: 20, totalTokens: 70 },
           estimatedCostUsd: expect.any(Number),
           durationMs: expect.any(Number),

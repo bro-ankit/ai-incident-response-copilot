@@ -20,11 +20,14 @@ export type AgentTool = {
 export type AgentMessage =
   | { role: 'user'; text: string }
   | { role: 'model'; text: string }
-  | { role: 'tool_call'; toolName: string; args: Record<string, unknown> }
+  // thoughtSignature: opaque token some Gemini models attach to a function-call part and
+  // require verbatim on the next turn's history — see gemini.client.ts's toGeminiHistory.
+  | { role: 'tool_call'; toolName: string; args: Record<string, unknown>; thoughtSignature?: string }
   | { role: 'tool_result'; toolName: string; result: unknown };
 
 export type AgentTurnResult =
-  { type: 'tool_call'; toolName: string; args: Record<string, unknown> } | { type: 'final_answer'; text: string };
+  | { type: 'tool_call'; toolName: string; args: Record<string, unknown>; thoughtSignature?: string }
+  | { type: 'final_answer'; text: string };
 
 export type TokenUsage = {
   promptTokens: number;

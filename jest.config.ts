@@ -9,7 +9,7 @@ const config: Config = {
     '^.+\\.js$': ['ts-jest', { tsconfig: 'test/tsconfig.json', diagnostics: false }],
   },
   transformIgnorePatterns: ['/node_modules/(?!.*cockatiel)'],
-  collectCoverageFrom: ['src/**/*.ts', '!src/main.ts'],
+  collectCoverageFrom: ['src/**/*.ts', '!src/main.ts', '!src/mcp/**/*.server.ts'],
   coverageDirectory: 'coverage',
   testEnvironment: 'node',
   injectGlobals: true,

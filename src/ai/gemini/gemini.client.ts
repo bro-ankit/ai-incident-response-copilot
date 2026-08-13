@@ -1,6 +1,7 @@
 import {
   type Content,
   EmbedContentRequest,
+  type EnhancedGenerateContentResponse,
   FunctionDeclarationSchema,
   GoogleGenerativeAI,
   type Part,
@@ -133,7 +134,12 @@ export class GeminiClient implements IAiClient {
 
       if (functionCalls && functionCalls.length > 0) {
         const call = functionCalls[0]!;
-        return { type: 'tool_call', toolName: call.name, args: call.args as Record<string, unknown> };
+        return {
+          type: 'tool_call',
+          toolName: call.name,
+          args: call.args as Record<string, unknown>,
+          thoughtSignature: this.extractThoughtSignature(result.response, call.name),
+        };
       }
 
       return { type: 'final_answer', text: result.response.text() };
@@ -215,6 +221,11 @@ export class GeminiClient implements IAiClient {
     }
   }
 
+  private extractThoughtSignature(response: EnhancedGenerateContentResponse, toolName: string): string | undefined {
+    const parts = response.candidates?.[0]?.content?.parts as (Part & { thoughtSignature?: string })[] | undefined;
+    return parts?.find((part) => part.functionCall?.name === toolName)?.thoughtSignature;
+  }
+
   private toGeminiHistory(messages: AgentMessage[]): Content[] {
     return messages.map((msg): Content => {
       switch (msg.role) {
@@ -223,7 +234,15 @@ export class GeminiClient implements IAiClient {
         case 'model':
           return { role: 'model', parts: [{ text: msg.text }] };
         case 'tool_call':
-          return { role: 'model', parts: [{ functionCall: { name: msg.toolName, args: msg.args } }] };
+          return {
+            role: 'model',
+            parts: [
+              {
+                functionCall: { name: msg.toolName, args: msg.args },
+                ...(msg.thoughtSignature ? { thoughtSignature: msg.thoughtSignature } : {}),
+              } as Part,
+            ],
+          };
         case 'tool_result':
           return {
             role: 'function',

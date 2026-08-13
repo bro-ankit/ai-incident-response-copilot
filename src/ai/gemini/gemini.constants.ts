@@ -13,6 +13,6 @@ export const GEMINI_COST_DEFAULTS = {
 
 // Defaults; override via GEMINI_GENERATION_MODEL / GEMINI_EMBEDDING_MODEL env vars.
 export const GEMINI_MODEL_DEFAULTS = {
-  GENERATION: 'gemini-2.5-flash',
+  GENERATION: 'gemini-3.5-flash',
   EMBEDDING: 'gemini-embedding-001',
 } as const;
