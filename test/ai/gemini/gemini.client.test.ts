@@ -184,7 +184,7 @@ describe('GeminiClient Unit Test', () => {
     });
 
     describe('When embedContent throws', () => {
-      test('Then it throws 500 with "Gemini API call failed"', async () => {
+      test('Then it throws 500 with "Gemini API call failed" and records no metric', async () => {
         mockEmbedContent.mockRejectedValueOnce(new Error('network timeout'));
 
         await AssertUtils.assertError(
@@ -192,6 +192,34 @@ describe('GeminiClient Unit Test', () => {
           'Gemini API call failed',
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
+        expect(metricsReporter.record).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('When called with an operation tagged in AiUsageContextService', () => {
+      test('Then it records the metric against the embedding model, using an estimated token count since embedContent exposes no usage metadata', async () => {
+        usageContext.getOperation.mockReturnValue('EMBEDDING');
+        mockEmbedContent.mockResolvedValueOnce({ embedding: { values: SAMPLE_EMBEDDING } });
+
+        await sut.generateEmbedding(SAMPLE_TEXT);
+
+        expect(metricsReporter.record).toHaveBeenCalledWith({
+          operation: 'EMBEDDING',
+          model: 'gemini-embedding-001',
+          usage: { promptTokens: 12, completionTokens: 0, totalTokens: 12 },
+          estimatedCostUsd: expect.any(Number),
+          durationMs: expect.any(Number),
+        });
+      });
+    });
+
+    describe('When called with no operation tagged in AiUsageContextService', () => {
+      test('Then it does not record a metric', async () => {
+        mockEmbedContent.mockResolvedValueOnce({ embedding: { values: SAMPLE_EMBEDDING } });
+
+        await sut.generateEmbedding(SAMPLE_TEXT);
+
+        expect(metricsReporter.record).not.toHaveBeenCalled();
       });
     });
   });

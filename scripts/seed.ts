@@ -70,6 +70,7 @@ async function seed(): Promise<void> {
         occurredAt,
         groundTruthRootCause: seedIncident.groundTruthRootCause,
         groundTruthExplanation: seedIncident.groundTruthExplanation,
+        isGoldenCase: seedIncident.isGoldenCase,
       })
       .returning({ id: incidentsTable.id });
 

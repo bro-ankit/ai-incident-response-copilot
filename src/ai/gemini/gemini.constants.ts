@@ -5,10 +5,11 @@ export const GEMINI_ERRORS = {
   NON_JSON_RESPONSE: 'Gemini returned non-JSON response',
 } as const;
 
-// Defaults; override via GEMINI_COST_INPUT_PER_MILLION / GEMINI_COST_OUTPUT_PER_MILLION env vars
+// Defaults;my  override via GEMINI_COST_INPUT_PER_MILLION / GEMINI_COST_OUTPUT_PER_MILLION env vars
 export const GEMINI_COST_DEFAULTS = {
   INPUT: 0.3,
   OUTPUT: 1.0,
+  EMBEDDING: 0.15,
 } as const;
 
 // Defaults; override via GEMINI_GENERATION_MODEL / GEMINI_EMBEDDING_MODEL env vars.

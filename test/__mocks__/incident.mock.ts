@@ -11,6 +11,7 @@ export const mockIncidentSelect = (overrides: Partial<IncidentSelect> = {}): Inc
   occurredAt: new Date('2026-08-12T14:02:00Z'),
   groundTruthRootCause: 'Missing environment variable in the new deploy caused DB connection pool exhaustion.',
   groundTruthExplanation: 'The new deploy dropped DB_POOL_SIZE, defaulting to a pool of 1, which exhausted under load.',
+  isGoldenCase: true,
   createdAt: new Date('2026-08-12T14:05:00Z'),
   ...overrides,
 });

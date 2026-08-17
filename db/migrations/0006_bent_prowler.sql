@@ -1,0 +1,1 @@
+ALTER TABLE "incidents" ADD COLUMN "is_golden_case" boolean DEFAULT false NOT NULL;

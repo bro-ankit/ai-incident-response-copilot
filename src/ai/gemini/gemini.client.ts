@@ -31,6 +31,7 @@ import { GEMINI_CLIENT, GEMINI_COST_DEFAULTS, GEMINI_ERRORS, GEMINI_MODEL_DEFAUL
 export class GeminiClient implements IAiClient {
   private readonly costInputPerMillion: number;
   private readonly costOutputPerMillion: number;
+  private readonly costEmbeddingPerMillion: number;
   private readonly generationModel: string;
   private readonly embeddingModel: string;
 
@@ -48,6 +49,10 @@ export class GeminiClient implements IAiClient {
     this.costOutputPerMillion = config.get<number>(
       ENV_VARIABLES.GEMINI.COST_OUTPUT_PER_MILLION,
       GEMINI_COST_DEFAULTS.OUTPUT,
+    );
+    this.costEmbeddingPerMillion = config.get<number>(
+      ENV_VARIABLES.GEMINI.COST_EMBEDDING_PER_MILLION,
+      GEMINI_COST_DEFAULTS.EMBEDDING,
     );
     this.generationModel = config.get<string>(ENV_VARIABLES.GEMINI.GENERATION_MODEL, GEMINI_MODEL_DEFAULTS.GENERATION);
     this.embeddingModel = config.get<string>(ENV_VARIABLES.GEMINI.EMBEDDING_MODEL, GEMINI_MODEL_DEFAULTS.EMBEDDING);
@@ -177,12 +182,14 @@ export class GeminiClient implements IAiClient {
   @Resilient()
   async generateEmbedding(text: string): Promise<number[]> {
     this.logger.info({ model: this.embeddingModel }, 'Generating embedding');
+    const start = Date.now();
     try {
       const model = this.client.getGenerativeModel({ model: this.embeddingModel });
       const result = await model.embedContent({
         content: { role: 'user', parts: [{ text }] },
         outputDimensionality: 768,
       } as EmbedContentRequest);
+      this.recordEmbeddingUsage(this.estimateTokens(text), Date.now() - start);
       return result.embedding.values;
     } catch (err) {
       this.logger.error({ err }, GEMINI_ERRORS.API_CALL_FAILED);
@@ -291,6 +298,26 @@ export class GeminiClient implements IAiClient {
       model: this.generationModel,
       usage,
       estimatedCostUsd: this.computeCostUsd(usage),
+      durationMs,
+    });
+  }
+
+  // embedContent's response doesn't expose token usage the way generateContent's does, so the
+  // count here is an estimate (~4 chars/token), not a value read off the API response.
+  private estimateTokens(text: string): number {
+    return Math.ceil(text.length / 4);
+  }
+
+  private recordEmbeddingUsage(promptTokens: number, durationMs: number): void {
+    const operation = this.usageContext.getOperation();
+    if (!operation) return;
+
+    const usage: TokenUsage = { promptTokens, completionTokens: 0, totalTokens: promptTokens };
+    void this.metricsReporter.record({
+      operation,
+      model: this.embeddingModel,
+      usage,
+      estimatedCostUsd: (promptTokens * this.costEmbeddingPerMillion) / 1_000_000,
       durationMs,
     });
   }

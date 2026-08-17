@@ -23,5 +23,6 @@ import { ToolCallingAgentRunner } from './tool-calling-agent-runner.service';
     ...ORCHESTRATOR_COMMAND_HANDLERS,
   ],
   controllers: [OrchestratorController],
+  exports: [OrchestratorService],
 })
 export class AgentsModule {}

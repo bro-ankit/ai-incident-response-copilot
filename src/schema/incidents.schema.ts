@@ -1,6 +1,6 @@
 import type { UUID } from 'node:crypto';
 
-import { pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
+import { boolean, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 
 export const INCIDENT_SEVERITIES = ['SEV1', 'SEV2', 'SEV3', 'SEV4'] as const;
 
@@ -15,6 +15,10 @@ export const incidentsTable = pgTable('incidents', {
   occurredAt: timestamp('occurred_at', { withTimezone: true }).notNull(),
   groundTruthRootCause: text('ground_truth_root_cause').notNull(),
   groundTruthExplanation: text('ground_truth_explanation').notNull(),
+  // A curated, stable subset used by the eval harness — not every incident that ever exists in
+  // this table. Real incidents accumulate over time; evals must run against a fixed reference set,
+  // not "all of them," or the eval run grows unbounded and stops being reproducible.
+  isGoldenCase: boolean('is_golden_case').notNull().default(false),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 });
 

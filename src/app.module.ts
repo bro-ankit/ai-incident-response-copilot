@@ -4,6 +4,7 @@ import { LoggerModule } from 'nestjs-pino';
 import { AgentsModule } from './agents/agents.module';
 import { AppService } from './app.service';
 import { CoreInfraModule } from './core-infra.module';
+import { EvalsModule } from './evals/evals.module';
 import { IncidentsModule } from './incidents/incidents.module';
 import { McpClientsModule } from './mcp/client/mcp-clients.module';
 import { RunbooksModule } from './runbooks/runbooks.module';
@@ -24,6 +25,7 @@ import { RunbooksModule } from './runbooks/runbooks.module';
     IncidentsModule,
     McpClientsModule,
     AgentsModule,
+    EvalsModule,
   ],
   providers: [AppService],
 })

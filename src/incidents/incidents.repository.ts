@@ -23,6 +23,16 @@ export class IncidentsRepository {
     return client.select().from(incidentsTable).orderBy(desc(incidentsTable.occurredAt));
   }
 
+  async findGoldenSet(): Promise<IncidentSelect[]> {
+    this.logger.debug('Listing golden-case incidents for eval');
+    const client = this.txContext.getClient(this.db);
+    return client
+      .select()
+      .from(incidentsTable)
+      .where(eq(incidentsTable.isGoldenCase, true))
+      .orderBy(desc(incidentsTable.occurredAt));
+  }
+
   async findById(id: UUID): Promise<IncidentSelect | undefined> {
     this.logger.debug({ id }, 'Finding incident by id');
     const client = this.txContext.getClient(this.db);

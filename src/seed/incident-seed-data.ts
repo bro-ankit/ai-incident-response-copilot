@@ -10,6 +10,7 @@ export type SeedLog = {
 
 export type SeedIncident = {
   readonly key: string;
+  readonly isGoldenCase: boolean;
   readonly title: string;
   readonly description: string;
   readonly service: string;
@@ -23,6 +24,7 @@ export type SeedIncident = {
 export const SEED_INCIDENTS: SeedIncident[] = [
   {
     key: 'payments-oom-crashloop',
+    isGoldenCase: true,
     title: 'Payments API pods crash-looping after v2.14.0 deploy',
     description:
       'Alert: PaymentsAPIHighRestartCount. payments-api pods in prod are restarting every 2-3 minutes since the 14:02 UTC deploy. Checkout success rate down 40%.',
@@ -113,6 +115,7 @@ export const SEED_INCIDENTS: SeedIncident[] = [
   },
   {
     key: 'checkout-db-pool-exhaustion',
+    isGoldenCase: true,
     title: 'Checkout API returning 504s during flash sale traffic',
     description:
       'Alert: HighLatency5xx checkout-service. 504 Gateway Timeout rate at 22% since traffic ramp began at 09:15 UTC for the flash sale.',
@@ -188,6 +191,7 @@ export const SEED_INCIDENTS: SeedIncident[] = [
   },
   {
     key: 'gateway-timeout-cascade',
+    isGoldenCase: true,
     title: 'Checkout latency spike traced to payment gateway provider outage',
     description:
       'Alert: UpstreamLatencyHigh payment-gateway-adapter. p99 latency for outbound charge calls jumped from 300ms to 14s starting 03:47 UTC, no corresponding deploy.',
@@ -263,6 +267,7 @@ export const SEED_INCIDENTS: SeedIncident[] = [
   },
   {
     key: 'webhook-consumer-lag',
+    isGoldenCase: true,
     title: 'Payment confirmation webhooks delayed by up to 40 minutes',
     description:
       'Alert: KafkaConsumerLagHigh webhook-processor. Merchants reporting order confirmations arriving 20-40 minutes late since ~11:00 UTC.',
@@ -338,6 +343,7 @@ export const SEED_INCIDENTS: SeedIncident[] = [
   },
   {
     key: 'config-missing-env-var',
+    isGoldenCase: true,
     title: 'Refunds service failing to start after config rollout',
     description:
       'Alert: DeploymentFailed refunds-service. All 4 pods stuck in CrashLoopBackOff since the 16:20 UTC config rollout, zero healthy replicas.',
@@ -407,6 +413,7 @@ export const SEED_INCIDENTS: SeedIncident[] = [
   },
   {
     key: 'cache-thundering-herd',
+    isGoldenCase: true,
     title: 'Product pricing DB overloaded after Redis cache eviction spike',
     description:
       'Alert: DatabaseCPUHigh pricing-db. CPU at 98% and read replicas lagging since 07:10 UTC, correlated with a Redis maxmemory eviction event.',

@@ -36,6 +36,20 @@
       "when": 1786522216112,
       "tag": "0004_add_runbooks_tsv_gin_index",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1786946349669,
+      "tag": "0005_clear_tenebrous",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1786949474979,
+      "tag": "0006_bent_prowler",
+      "breakpoints": true
     }
   ]
 }
