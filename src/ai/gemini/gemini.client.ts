@@ -104,11 +104,12 @@ export class GeminiClient implements IAiClient {
     }
   }
 
-  async generateWithTools(history: AgentMessage[], tools: AgentTool[]): Promise<AgentTurnResult> {
+  async generateWithTools(systemPrompt: string, history: AgentMessage[], tools: AgentTool[]): Promise<AgentTurnResult> {
     this.logger.info({ model: this.generationModel, historyLength: history.length }, 'Agent turn with tools');
 
     const model = this.client.getGenerativeModel({
       model: this.generationModel,
+      systemInstruction: systemPrompt,
       tools: [
         {
           functionDeclarations: tools.map((t) => ({
@@ -200,7 +201,7 @@ export class GeminiClient implements IAiClient {
     };
   }
 
-  private toGeminiSchema(prop: AiSchemaProperty | AiResponseSchema): Schema {
+  private toGeminiSchema(prop: AiSchemaProperty): Schema {
     switch (prop.type) {
       case 'string':
         return { type: SchemaType.STRING } satisfies Schema;
@@ -209,15 +210,13 @@ export class GeminiClient implements IAiClient {
       case 'boolean':
         return { type: SchemaType.BOOLEAN } satisfies Schema;
       case 'array':
-        return { type: SchemaType.ARRAY, items: this.toGeminiSchema(prop.items!) } satisfies Schema;
-      case 'object': {
-        const obj = prop as AiResponseSchema;
+        return { type: SchemaType.ARRAY, items: this.toGeminiSchema(prop.items) } satisfies Schema;
+      case 'object':
         return {
           type: SchemaType.OBJECT,
-          properties: Object.fromEntries(Object.entries(obj.properties).map(([k, v]) => [k, this.toGeminiSchema(v)])),
-          required: obj.required,
+          properties: Object.fromEntries(Object.entries(prop.properties).map(([k, v]) => [k, this.toGeminiSchema(v)])),
+          required: prop.required,
         } satisfies Schema;
-      }
     }
   }
 

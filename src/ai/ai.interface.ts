@@ -1,15 +1,13 @@
 export type AiSchemaType = 'string' | 'number' | 'boolean' | 'array' | 'object';
 
-export type AiSchemaProperty = {
-  type: AiSchemaType;
-  items?: AiSchemaProperty;
-};
+export type AiSchemaProperty =
+  | { type: 'string' }
+  | { type: 'number' }
+  | { type: 'boolean' }
+  | { type: 'array'; items: AiSchemaProperty }
+  | { type: 'object'; properties: Record<string, AiSchemaProperty>; required: string[] };
 
-export type AiResponseSchema = {
-  type: 'object';
-  properties: Record<string, AiSchemaProperty>;
-  required: string[];
-};
+export type AiResponseSchema = Extract<AiSchemaProperty, { type: 'object' }>;
 
 export type AgentTool = {
   name: string;
@@ -39,6 +37,6 @@ export interface IAiClient {
   generateStructured(prompt: string, schema: AiResponseSchema): Promise<unknown>;
   generateEmbedding(text: string): Promise<number[]>;
   generateText(systemPrompt: string, userMessage: string): Promise<string>;
-  generateWithTools(history: AgentMessage[], tools: AgentTool[]): Promise<AgentTurnResult>;
+  generateWithTools(systemPrompt: string, history: AgentMessage[], tools: AgentTool[]): Promise<AgentTurnResult>;
   generateTextStream(systemPrompt: string, userMessage: string): AsyncIterable<string>;
 }

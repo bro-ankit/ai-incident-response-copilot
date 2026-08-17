@@ -1,10 +1,11 @@
 import { Module } from '@nestjs/common';
 import { LoggerModule } from 'nestjs-pino';
 
-import { AppController } from './app.controller';
+import { AgentsModule } from './agents/agents.module';
 import { AppService } from './app.service';
 import { CoreInfraModule } from './core-infra.module';
 import { IncidentsModule } from './incidents/incidents.module';
+import { McpClientsModule } from './mcp/client/mcp-clients.module';
 import { RunbooksModule } from './runbooks/runbooks.module';
 
 @Module({
@@ -21,8 +22,9 @@ import { RunbooksModule } from './runbooks/runbooks.module';
     }),
     RunbooksModule,
     IncidentsModule,
+    McpClientsModule,
+    AgentsModule,
   ],
-  controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule {}

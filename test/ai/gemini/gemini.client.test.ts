@@ -16,6 +16,7 @@ const SYSTEM_PROMPT = 'Answer only from the provided context.';
 const USER_MESSAGE = 'What is the likely root cause of this incident?';
 const LLM_ANSWER = 'A newly introduced in-memory cache has no eviction policy.';
 
+const AGENT_SYSTEM_PROMPT = 'You are a runbook search agent. Use the provided tools to investigate.';
 const AGENT_HISTORY: AgentMessage[] = [{ role: 'user', text: 'What do we know about this incident?' }];
 const AGENT_TOOLS: AgentTool[] = [
   {
@@ -197,7 +198,7 @@ describe('GeminiClient Unit Test', () => {
 
   describe('Given generateWithTools', () => {
     describe('When the model returns a function call', () => {
-      test('Then it returns tool_call with the tool name and args', async () => {
+      test('Then it calls the model with the system instruction and tools, and returns tool_call with the tool name and args', async () => {
         mockSendMessage.mockResolvedValueOnce({
           response: {
             functionCalls: () => [{ name: 'searchRunbooks', args: { query: 'OOMKilled' } }],
@@ -205,9 +206,28 @@ describe('GeminiClient Unit Test', () => {
           },
         });
 
-        const result = await sut.generateWithTools(AGENT_HISTORY, AGENT_TOOLS);
+        const result = await sut.generateWithTools(AGENT_SYSTEM_PROMPT, AGENT_HISTORY, AGENT_TOOLS);
 
         expect(result).toEqual({ type: 'tool_call', toolName: 'searchRunbooks', args: { query: 'OOMKilled' } });
+        expect(geminiClient.getGenerativeModel).toHaveBeenCalledWith({
+          model: 'gemini-3.5-flash',
+          systemInstruction: AGENT_SYSTEM_PROMPT,
+          tools: [
+            {
+              functionDeclarations: [
+                {
+                  name: 'searchRunbooks',
+                  description: 'Search runbooks/postmortems semantically.',
+                  parameters: {
+                    type: SchemaType.OBJECT,
+                    properties: { query: { type: SchemaType.STRING } },
+                    required: ['query'],
+                  },
+                },
+              ],
+            },
+          ],
+        });
         expect(mockStartChat).toHaveBeenCalledWith({ history: [] }); // history slice(0,-1) is empty for single user message
         expect(mockSendMessage).toHaveBeenCalledWith([{ text: 'What do we know about this incident?' }]);
       });
@@ -222,7 +242,7 @@ describe('GeminiClient Unit Test', () => {
           },
         });
 
-        const result = await sut.generateWithTools(AGENT_HISTORY, AGENT_TOOLS);
+        const result = await sut.generateWithTools(AGENT_SYSTEM_PROMPT, AGENT_HISTORY, AGENT_TOOLS);
 
         expect(result).toEqual({ type: 'final_answer', text: LLM_ANSWER });
       });
@@ -240,7 +260,7 @@ describe('GeminiClient Unit Test', () => {
           { role: 'tool_result', toolName: 'searchRunbooks', result: { found: 1 } },
         ];
 
-        await sut.generateWithTools(historyWithToolResult, AGENT_TOOLS);
+        await sut.generateWithTools(AGENT_SYSTEM_PROMPT, historyWithToolResult, AGENT_TOOLS);
 
         expect(mockStartChat).toHaveBeenCalledWith({
           history: [
@@ -262,7 +282,7 @@ describe('GeminiClient Unit Test', () => {
         ];
 
         await AssertUtils.assertError(
-          () => sut.generateWithTools(badHistory, AGENT_TOOLS),
+          () => sut.generateWithTools(AGENT_SYSTEM_PROMPT, badHistory, AGENT_TOOLS),
           'generateWithTools called with unexpected last message role: tool_call',
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
@@ -275,7 +295,7 @@ describe('GeminiClient Unit Test', () => {
         mockSendMessage.mockRejectedValueOnce(new Error('upstream error'));
 
         await AssertUtils.assertError(
-          () => sut.generateWithTools(AGENT_HISTORY, AGENT_TOOLS),
+          () => sut.generateWithTools(AGENT_SYSTEM_PROMPT, AGENT_HISTORY, AGENT_TOOLS),
           'Gemini API call failed',
           HttpStatus.INTERNAL_SERVER_ERROR,
         );

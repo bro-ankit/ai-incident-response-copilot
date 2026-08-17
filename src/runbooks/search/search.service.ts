@@ -5,6 +5,7 @@ import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { AI_CLIENT } from '../../ai/ai.constants';
 import type { IAiClient } from '../../ai/ai.interface';
 import { ENV_VARIABLES } from '../../constants/env.constants';
+import { TrackAiUsage } from '../../metrics/track-ai-usage.decorator';
 import { EMBEDDING_MODELS, type EmbeddingModel, type RunbookSelect } from '../../schema/runbooks.schema';
 import { RunbooksRepository } from '../runbooks.repository';
 import { RerankerService } from './reranker.service';
@@ -31,6 +32,7 @@ export class SearchService {
     this.embeddingModel = configured as EmbeddingModel;
   }
 
+  @TrackAiUsage('EMBEDDING')
   async search(query: string): Promise<RunbookSelect[]> {
     this.logger.info({ query }, 'Hybrid runbook search request');
 
