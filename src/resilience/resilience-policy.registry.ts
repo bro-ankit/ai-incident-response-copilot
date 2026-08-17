@@ -7,13 +7,15 @@ import {
   type IPolicy,
   retry,
   SamplingBreaker,
+  timeout,
+  TimeoutStrategy,
   wrap,
 } from 'cockatiel';
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 
 import type { ResiliencePolicyOptions } from './resilience-policy.types';
 
-const DEFAULT_OPTIONS: Required<ResiliencePolicyOptions> = {
+const DEFAULT_OPTIONS: Required<Omit<ResiliencePolicyOptions, 'timeoutMs'>> = {
   maxAttempts: 3,
   initialDelay: 100,
   maxDelay: 2000,
@@ -69,7 +71,16 @@ export class ResiliencePolicyRegistry {
     breaker.onReset(() => this.logger.info(`[${name}] circuit CLOSED`));
     breaker.onHalfOpen(() => this.logger.warn(`[${name}] circuit HALF-OPEN`));
 
-    const policy = wrap(retryPolicy, breaker);
+    if (opts.timeoutMs === undefined) {
+      const policy = wrap(retryPolicy, breaker);
+      this.policies.set(name, policy);
+      return policy;
+    }
+
+    const timeoutPolicy = timeout(opts.timeoutMs, TimeoutStrategy.Aggressive);
+    timeoutPolicy.onTimeout(() => this.logger.warn(`[${name}] timed out after ${opts.timeoutMs}ms`));
+
+    const policy = wrap(retryPolicy, breaker, timeoutPolicy);
     this.policies.set(name, policy);
     return policy;
   }

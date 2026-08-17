@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 
 import { LogSearchMcpClient } from '../../mcp/client/log-search-mcp-client';
 import { TrackAiUsage } from '../../metrics/track-ai-usage.decorator';
+import { Resilient } from '../../resilience';
 import type { IncidentSelect } from '../../schema/incidents.schema';
 import { ToolCallingAgentRunner } from '../tool-calling-agent-runner.service';
 
@@ -21,6 +22,7 @@ export class LogAnalysisAgent {
   ) {}
 
   @TrackAiUsage('LOG_ANALYSIS')
+  @Resilient({ options: { timeoutMs: 60_000, maxAttempts: 1 } })
   async investigate(incident: IncidentSelect): Promise<string> {
     const userMessage =
       `Incident ${incident.id}: "${incident.title}".\n${incident.description}\n\n` +

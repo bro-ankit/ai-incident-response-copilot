@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { AI_CLIENT } from '../../ai/ai.constants';
 import type { AiResponseSchema, IAiClient } from '../../ai/ai.interface';
 import { TrackAiUsage } from '../../metrics/track-ai-usage.decorator';
+import { Resilient } from '../../resilience';
 import type { IncidentSelect } from '../../schema/incidents.schema';
 
 const ROOT_CAUSE_SCHEMA: AiResponseSchema = {
@@ -51,6 +52,7 @@ export class RootCauseHypothesisAgent {
   constructor(@Inject(AI_CLIENT) private readonly aiClient: IAiClient) {}
 
   @TrackAiUsage('ROOT_CAUSE')
+  @Resilient({ options: { timeoutMs: 30_000 } })
   async synthesize(
     incident: IncidentSelect,
     logFindings: string,

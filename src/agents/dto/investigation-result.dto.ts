@@ -10,20 +10,24 @@ export class InvestigationResultDto {
   incidentId!: string;
 
   @Expose()
-  @ApiProperty({ type: String })
-  logFindings!: string;
+  @ApiProperty({ type: String, nullable: true })
+  logFindings!: string | null;
 
   @Expose()
-  @ApiProperty({ type: String })
-  runbookFindings!: string;
+  @ApiProperty({ type: String, nullable: true })
+  runbookFindings!: string | null;
 
   @Expose()
   @Type(() => RootCauseHypothesisDto)
-  @ApiProperty({ type: [RootCauseHypothesisDto] })
-  hypotheses!: RootCauseHypothesisDto[];
+  @ApiProperty({ type: [RootCauseHypothesisDto], nullable: true })
+  hypotheses!: RootCauseHypothesisDto[] | null;
 
   @Expose()
   @Type(() => RemediationStepDto)
-  @ApiProperty({ type: [RemediationStepDto] })
-  remediationSteps!: RemediationStepDto[];
+  @ApiProperty({ type: [RemediationStepDto], nullable: true })
+  remediationSteps!: RemediationStepDto[] | null;
+
+  @Expose()
+  @ApiProperty({ type: [String], description: 'What the investigation could not determine, if anything' })
+  warnings!: string[];
 }

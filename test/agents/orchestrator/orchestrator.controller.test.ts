@@ -39,6 +39,7 @@ describe('OrchestratorController Supertest', () => {
           runbookFindings: 'runbook findings',
           hypotheses: [],
           remediationSteps: [],
+          warnings: [],
         };
         commandBus.execute.mockResolvedValue(result);
 

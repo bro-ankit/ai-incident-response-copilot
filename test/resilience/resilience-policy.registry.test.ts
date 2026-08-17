@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { BrokenCircuitError } from 'cockatiel';
+import { BrokenCircuitError, TaskCancelledError } from 'cockatiel';
 import { LoggerModule } from 'nestjs-pino';
 
 import { ResiliencePolicyRegistry } from '../../src/resilience/resilience-policy.registry';
@@ -133,6 +133,40 @@ describe('ResiliencePolicyRegistry Unit Test', () => {
         await expect(policy.execute(op)).resolves.toBe('normal');
 
         jest.useRealTimers();
+      });
+    });
+  });
+
+  describe('Given a policy created with timeoutMs', () => {
+    describe('When the operation resolves before the timeout', () => {
+      test('Then it resolves with the operation result', async () => {
+        const policy = sut.getOrCreate('fast.op', { timeoutMs: 1000, maxAttempts: 1 });
+
+        const result = await policy.execute(() => Promise.resolve('done in time'));
+
+        expect(result).toBe('done in time');
+      });
+    });
+
+    describe('When the operation takes longer than the timeout on every attempt', () => {
+      test('Then it rejects with TaskCancelledError after retrying up to maxAttempts', async () => {
+        const policy = sut.getOrCreate('slow.op', { timeoutMs: 20, maxAttempts: 2, initialDelay: 0 });
+        const op = jest.fn().mockImplementation(() => new Promise((resolve) => setTimeout(resolve, 500, 'too slow')));
+
+        await expect(policy.execute(op)).rejects.toThrow(TaskCancelledError);
+        expect(op).toHaveBeenCalledTimes(3);
+      });
+    });
+  });
+
+  describe('Given a policy created without timeoutMs', () => {
+    describe('When the operation takes a long time', () => {
+      test('Then it still resolves, since no timeout policy was applied', async () => {
+        const policy = sut.getOrCreate('no-timeout.op', { maxAttempts: 1 });
+
+        const result = await policy.execute(() => new Promise((resolve) => setTimeout(resolve, 50, 'eventually')));
+
+        expect(result).toBe('eventually');
       });
     });
   });

@@ -24,8 +24,9 @@ export class InvestigateIncidentHandler implements ICommandHandler<InvestigateIn
         incidentId: result.incident.id,
         logFindings: result.logFindings,
         runbookFindings: result.runbookFindings,
-        hypotheses: result.rootCause.hypotheses,
-        remediationSteps: result.remediation.steps,
+        hypotheses: result.rootCause?.hypotheses ?? null,
+        remediationSteps: result.remediation?.steps ?? null,
+        warnings: result.warnings,
       },
       { excludeExtraneousValues: true },
     );

@@ -30,6 +30,10 @@ export class ResilienceDiscoveryService implements OnModuleInit {
         proto[methodName] = function (...args: unknown[]) {
           return policy.execute(() => original.apply(this, args) as Promise<unknown>);
         };
+
+        for (const key of Reflect.getMetadataKeys(original) as unknown[]) {
+          Reflect.defineMetadata(key, Reflect.getMetadata(key, original), proto[methodName]);
+        }
       });
     }
   }

@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { AI_CLIENT } from '../../ai/ai.constants';
 import type { AiResponseSchema, IAiClient } from '../../ai/ai.interface';
 import { TrackAiUsage } from '../../metrics/track-ai-usage.decorator';
+import { Resilient } from '../../resilience';
 import type { IncidentSelect } from '../../schema/incidents.schema';
 import type { RootCauseHypothesisResponse } from '../root-cause/root-cause-hypothesis.agent';
 
@@ -52,6 +53,7 @@ export class RemediationAgent {
   constructor(@Inject(AI_CLIENT) private readonly aiClient: IAiClient) {}
 
   @TrackAiUsage('REMEDIATION')
+  @Resilient({ options: { timeoutMs: 30_000 } })
   async propose(incident: IncidentSelect, rootCause: RootCauseHypothesisResponse): Promise<RemediationResponse> {
     const topHypothesis = rootCause.hypotheses[0]!;
     const prompt =

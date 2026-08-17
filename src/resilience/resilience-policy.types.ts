@@ -6,4 +6,5 @@ export type ResiliencePolicyOptions = {
   threshold?: number;
   minimumRps?: number;
   durationMs?: number;
+  timeoutMs?: number;
 };
