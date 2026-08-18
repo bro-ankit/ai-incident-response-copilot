@@ -5,6 +5,14 @@ import { ToolCallingAgentRunner } from '../../../src/agents/tool-calling-agent-r
 import { LogSearchMcpClient } from '../../../src/mcp/client/log-search-mcp-client';
 import { mockIncidentSelect } from '../../__mocks__/incident.mock';
 
+const SYSTEM_PROMPT =
+  'You are a Log Analysis agent investigating a production incident. You have access to a ' +
+  'search_incident_logs tool. Investigate methodically: start broad (all logs, or ERROR/FATAL level ' +
+  "logs for this incident), then narrow with keyword searches based on what you find. Don't stop at the " +
+  'first result — if the logs suggest a more specific query would help, run it. When you have enough ' +
+  'evidence, respond with a concise summary of the error pattern, timeline, and any root-cause signals ' +
+  'you observed, citing specific log lines.';
+
 describe('LogAnalysisAgent Unit Test', () => {
   let sut: LogAnalysisAgent;
   let runner: jest.Mocked<ToolCallingAgentRunner>;
@@ -31,10 +39,13 @@ describe('LogAnalysisAgent Unit Test', () => {
         expect(result).toBe('Found repeated connection pool errors.');
 
         const [params] = runner.run.mock.calls[0];
-        expect(params.mcpClient).toBe(mcpClient);
-        expect(params.userMessage).toContain(INCIDENT.id);
-        expect(params.userMessage).toContain(INCIDENT.title);
-        expect(params.userMessage).toContain(INCIDENT.description);
+        expect(params).toEqual({
+          systemPrompt: SYSTEM_PROMPT,
+          userMessage:
+            `Incident ${INCIDENT.id}: "${INCIDENT.title}".\n${INCIDENT.description}\n\n` +
+            'Investigate the logs for this incident and summarize what you find.',
+          mcpClient,
+        });
       });
     });
   });

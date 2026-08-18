@@ -21,6 +21,36 @@ describe('EvalJudgeService Unit Test', () => {
     aiClient = unitRef.get(AI_CLIENT);
   });
 
+  const buildExpectedPrompt = (logFindings: string, runbookFindings: string): string =>
+    [
+      "You are an expert evaluator judging an AI incident-response system's root-cause hypothesis.",
+      '',
+      `INCIDENT: "${INCIDENT.title}". ${INCIDENT.description}`,
+      '',
+      `GROUND TRUTH ROOT CAUSE: ${INCIDENT.groundTruthRootCause}`,
+      `GROUND TRUTH EXPLANATION: ${INCIDENT.groundTruthExplanation}`,
+      '',
+      'LOG ANALYSIS FINDINGS USED TO GENERATE THE HYPOTHESIS:',
+      logFindings,
+      '',
+      'RUNBOOK SEARCH FINDINGS USED TO GENERATE THE HYPOTHESIS:',
+      runbookFindings,
+      '',
+      "SYSTEM'S TOP HYPOTHESIS:",
+      `Root cause: ${HYPOTHESIS.rootCause}`,
+      `Confidence: ${HYPOTHESIS.confidence}`,
+      `Reasoning: ${HYPOTHESIS.reasoning}`,
+      '',
+      'Score this hypothesis on two dimensions:',
+      '- correctness (0.0–1.0): Does the hypothesis identify the same underlying root cause as the ground ' +
+        'truth, allowing for different phrasing? 1.0 = same cause, 0.0 = unrelated or wrong cause.',
+      "- groundedness (0.0–1.0): Is the hypothesis's reasoning actually supported by the log analysis and " +
+        "runbook findings it was given, without inventing details those findings don't contain? " +
+        '1.0 = fully grounded, 0.0 = hallucinated.',
+      '',
+      'Return strict JSON only.',
+    ].join('\n');
+
   beforeEach(() => jest.clearAllMocks());
 
   describe('Given score', () => {
@@ -46,13 +76,7 @@ describe('EvalJudgeService Unit Test', () => {
         });
 
         const [prompt] = aiClient.generateStructured.mock.calls[0];
-        expect(prompt).toContain(INCIDENT.title);
-        expect(prompt).toContain(INCIDENT.groundTruthRootCause);
-        expect(prompt).toContain(INCIDENT.groundTruthExplanation);
-        expect(prompt).toContain(LOG_FINDINGS);
-        expect(prompt).toContain(RUNBOOK_FINDINGS);
-        expect(prompt).toContain(HYPOTHESIS.rootCause);
-        expect(prompt).toContain(HYPOTHESIS.reasoning);
+        expect(prompt).toBe(buildExpectedPrompt(LOG_FINDINGS, RUNBOOK_FINDINGS));
       });
     });
 
@@ -63,8 +87,12 @@ describe('EvalJudgeService Unit Test', () => {
         await sut.score({ incident: INCIDENT, hypothesis: HYPOTHESIS, logFindings: null, runbookFindings: null });
 
         const [prompt] = aiClient.generateStructured.mock.calls[0];
-        expect(prompt).toContain('(none — log analysis failed or was unavailable)');
-        expect(prompt).toContain('(none — runbook search failed or was unavailable)');
+        expect(prompt).toBe(
+          buildExpectedPrompt(
+            '(none — log analysis failed or was unavailable)',
+            '(none — runbook search failed or was unavailable)',
+          ),
+        );
       });
     });
 

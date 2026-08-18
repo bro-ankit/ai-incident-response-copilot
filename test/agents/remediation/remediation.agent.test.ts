@@ -8,6 +8,14 @@ import { GraphRepository } from '../../../src/graph/graph.repository';
 import { mockIncidentSelect } from '../../__mocks__/incident.mock';
 import { AssertUtils } from '../../utils/assert.utils';
 
+const SYSTEM_PROMPT =
+  'You are a Remediation agent. You are given the top root-cause hypothesis for a production incident. ' +
+  'Propose concrete remediation steps (e.g. rollback, scale up, restart, config change), each with a ' +
+  'rationale and a risk level of low, medium, or high. You are propose-only: you never execute anything ' +
+  'yourself, and every step you propose requires explicit human approval before it can be carried out. ' +
+  'Order steps from lowest-risk/fastest-to-try to highest-risk. If a blast radius is provided, weigh ' +
+  'services with "hard" dependents more cautiously than services with only "soft" dependents.';
+
 describe('RemediationAgent Unit Test', () => {
   let sut: RemediationAgent;
   let aiClient: jest.Mocked<IAiClient>;
@@ -17,6 +25,13 @@ describe('RemediationAgent Unit Test', () => {
   const ROOT_CAUSE: RootCauseHypothesisResponse = {
     hypotheses: [{ rootCause: 'DB connection pool exhaustion', confidence: 0.9, reasoning: 'Matches log pattern.' }],
   };
+
+  const buildExpectedPrompt = (blastRadiusSection: string): string =>
+    `${SYSTEM_PROMPT}\n\n` +
+    `Incident: "${INCIDENT.title}". ${INCIDENT.description}\n\n` +
+    `Top root-cause hypothesis: ${ROOT_CAUSE.hypotheses[0].rootCause} (confidence: ${ROOT_CAUSE.hypotheses[0].confidence})\n` +
+    `Reasoning: ${ROOT_CAUSE.hypotheses[0].reasoning}` +
+    blastRadiusSection;
 
   beforeAll(() => {
     const { unit, unitRef } = TestBed.create(RemediationAgent).compile();
@@ -41,9 +56,7 @@ describe('RemediationAgent Unit Test', () => {
         });
 
         const [prompt] = aiClient.generateStructured.mock.calls[0];
-        expect(prompt).toContain(INCIDENT.title);
-        expect(prompt).toContain(ROOT_CAUSE.hypotheses[0].rootCause);
-        expect(prompt).toContain(ROOT_CAUSE.hypotheses[0].reasoning);
+        expect(prompt).toBe(buildExpectedPrompt(''));
       });
     });
 
@@ -73,8 +86,12 @@ describe('RemediationAgent Unit Test', () => {
 
         expect(graphRepository.blastRadius).toHaveBeenCalledWith(INCIDENT.service);
         const [prompt] = aiClient.generateStructured.mock.calls[0];
-        expect(prompt).toContain('checkout-service (hard)');
-        expect(prompt).toContain('notifications-service (soft)');
+        expect(prompt).toBe(
+          buildExpectedPrompt(
+            `\n\nBlast radius: if "${INCIDENT.service}" stays down, these services are affected: ` +
+              'checkout-service (hard), notifications-service (soft)',
+          ),
+        );
       });
     });
 
@@ -91,7 +108,7 @@ describe('RemediationAgent Unit Test', () => {
           steps: [{ action: 'Roll back the deploy', rationale: 'Reverts the missing env var.', riskLevel: 'low' }],
         });
         const [prompt] = aiClient.generateStructured.mock.calls[0];
-        expect(prompt).not.toContain('Blast radius');
+        expect(prompt).toBe(buildExpectedPrompt(''));
       });
     });
   });

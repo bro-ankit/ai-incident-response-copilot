@@ -5,6 +5,14 @@ import { ToolCallingAgentRunner } from '../../../src/agents/tool-calling-agent-r
 import { RunbookSearchMcpClient } from '../../../src/mcp/client/runbook-search-mcp-client';
 import { mockIncidentSelect } from '../../__mocks__/incident.mock';
 
+const SYSTEM_PROMPT =
+  'You are a Runbook Search agent. You have access to a search_runbooks tool over a knowledge base of ' +
+  'runbooks and postmortems. Search using a query that captures the symptoms and likely failure mode of ' +
+  'the incident, not just its title verbatim. If the results look like a weak match, try reformulating ' +
+  'the query once before giving up. When you have a good match (or are confident there is none), respond ' +
+  'with the best matching runbook — its title and how it applies here — or say plainly that no relevant ' +
+  'runbook was found.';
+
 describe('RunbookSearchAgent Unit Test', () => {
   let sut: RunbookSearchAgent;
   let runner: jest.Mocked<ToolCallingAgentRunner>;
@@ -31,9 +39,13 @@ describe('RunbookSearchAgent Unit Test', () => {
         expect(result).toBe('Matched runbook: DB connection pool exhaustion.');
 
         const [params] = runner.run.mock.calls[0];
-        expect(params.mcpClient).toBe(mcpClient);
-        expect(params.userMessage).toContain(INCIDENT.title);
-        expect(params.userMessage).toContain(INCIDENT.description);
+        expect(params).toEqual({
+          systemPrompt: SYSTEM_PROMPT,
+          userMessage:
+            `Incident: "${INCIDENT.title}". ${INCIDENT.description}\n\n` +
+            'Search the runbook knowledge base for a matching runbook.',
+          mcpClient,
+        });
       });
     });
   });
