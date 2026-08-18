@@ -45,7 +45,7 @@ describe('EvalJudgeService Unit Test', () => {
           reasoning: 'Matches ground truth and is grounded in the findings.',
         });
 
-        const [prompt] = aiClient.generateStructured.mock.calls[0]!;
+        const [prompt] = aiClient.generateStructured.mock.calls[0];
         expect(prompt).toContain(INCIDENT.title);
         expect(prompt).toContain(INCIDENT.groundTruthRootCause);
         expect(prompt).toContain(INCIDENT.groundTruthExplanation);
@@ -62,7 +62,7 @@ describe('EvalJudgeService Unit Test', () => {
 
         await sut.score({ incident: INCIDENT, hypothesis: HYPOTHESIS, logFindings: null, runbookFindings: null });
 
-        const [prompt] = aiClient.generateStructured.mock.calls[0]!;
+        const [prompt] = aiClient.generateStructured.mock.calls[0];
         expect(prompt).toContain('(none — log analysis failed or was unavailable)');
         expect(prompt).toContain('(none — runbook search failed or was unavailable)');
       });

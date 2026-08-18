@@ -139,7 +139,7 @@ export class GeminiClient implements IAiClient {
       this.recordUsage(usage, Date.now() - start);
 
       if (functionCalls && functionCalls.length > 0) {
-        const call = functionCalls[0]!;
+        const call = functionCalls[0];
         return {
           type: 'tool_call',
           toolName: call.name,

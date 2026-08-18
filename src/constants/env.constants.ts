@@ -18,6 +18,11 @@ export const ENV_VARIABLES = {
   SERVER: {
     PORT: 'SERVER_PORT',
   },
+  GRAPH: {
+    URI: 'NEO4J_URI',
+    USER: 'NEO4J_USER',
+    PASSWORD: 'NEO4J_PASSWORD',
+  },
   EVAL: {
     INTER_CASE_DELAY_MS: 'EVAL_INTER_CASE_DELAY_MS',
   },

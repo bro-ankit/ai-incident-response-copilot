@@ -35,7 +35,7 @@ export class ResiliencePolicyRegistry {
   ) {}
 
   getOrCreate(name: string, options: ResiliencePolicyOptions = {}): IPolicy {
-    if (this.policies.has(name)) return this.policies.get(name)!;
+    if (this.policies.has(name)) return this.policies.get(name) as IPolicy;
 
     const opts = { ...DEFAULT_OPTIONS, ...options };
 

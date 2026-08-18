@@ -25,7 +25,7 @@ export class RunbooksRepository {
       .insert(runbooksTable)
       .values({ ...data, tsvContent: sql`to_tsvector('english', ${searchableText})` })
       .returning();
-    return result!;
+    return result;
   }
 
   async findSimilarIds(embedding: number[], limit: number, embeddingModel: EmbeddingModel): Promise<UUID[]> {

@@ -30,7 +30,7 @@ describe('LogAnalysisAgent Unit Test', () => {
 
         expect(result).toBe('Found repeated connection pool errors.');
 
-        const [params] = runner.run.mock.calls[0]!;
+        const [params] = runner.run.mock.calls[0];
         expect(params.mcpClient).toBe(mcpClient);
         expect(params.userMessage).toContain(INCIDENT.id);
         expect(params.userMessage).toContain(INCIDENT.title);

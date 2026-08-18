@@ -22,11 +22,11 @@ describe('RrfUtil Unit Test', () => {
       test('Then its score is the sum of both contributions, outranking a candidate found by only one retriever', () => {
         const result = RrfUtil.fuse(['vector-only', 'shared'], ['shared']);
 
-        const shared = result.find((r) => r.id === 'shared')!;
-        const vectorOnly = result.find((r) => r.id === 'vector-only')!;
+        const shared = result.find((r) => r.id === 'shared');
+        const vectorOnly = result.find((r) => r.id === 'vector-only');
 
-        expect(shared.score).toBeCloseTo(rrfScore(1) + rrfScore(0));
-        expect(vectorOnly.score).toBeCloseTo(rrfScore(0));
+        expect(shared?.score).toBeCloseTo(rrfScore(1) + rrfScore(0));
+        expect(vectorOnly?.score).toBeCloseTo(rrfScore(0));
         expect(result[0]!.id).toBe('shared');
       });
     });

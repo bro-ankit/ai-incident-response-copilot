@@ -30,7 +30,7 @@ describe('RunbookSearchAgent Unit Test', () => {
 
         expect(result).toBe('Matched runbook: DB connection pool exhaustion.');
 
-        const [params] = runner.run.mock.calls[0]!;
+        const [params] = runner.run.mock.calls[0];
         expect(params.mcpClient).toBe(mcpClient);
         expect(params.userMessage).toContain(INCIDENT.title);
         expect(params.userMessage).toContain(INCIDENT.description);

@@ -40,7 +40,7 @@ export class RunEvalsCommandHandler implements ICommandHandler<RunEvalsCommand, 
     const stored: EvalRunSelect[] = [];
 
     for (let i = 0; i < incidents.length; i++) {
-      const incident = incidents[i]!;
+      const incident = incidents[i];
       try {
         const run = await this.runCase(incident);
         stored.push(run);

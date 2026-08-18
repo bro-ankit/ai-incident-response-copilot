@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 
+import { GraphModule } from '../graph/graph.module';
 import { IncidentsModule } from '../incidents/incidents.module';
 import { LogAnalysisAgent } from './log-analysis/log-analysis.agent';
 import { ORCHESTRATOR_COMMAND_HANDLERS } from './orchestrator';
@@ -12,7 +13,7 @@ import { RunbookSearchAgent } from './runbook-search/runbook-search.agent';
 import { ToolCallingAgentRunner } from './tool-calling-agent-runner.service';
 
 @Module({
-  imports: [CqrsModule, IncidentsModule],
+  imports: [CqrsModule, IncidentsModule, GraphModule],
   providers: [
     ToolCallingAgentRunner,
     LogAnalysisAgent,

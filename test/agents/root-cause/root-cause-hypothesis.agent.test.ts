@@ -39,7 +39,7 @@ describe('RootCauseHypothesisAgent Unit Test', () => {
           ],
         });
 
-        const [prompt] = aiClient.generateStructured.mock.calls[0]!;
+        const [prompt] = aiClient.generateStructured.mock.calls[0];
         expect(prompt).toContain(INCIDENT.title);
         expect(prompt).toContain(LOG_FINDINGS);
         expect(prompt).toContain(RUNBOOK_FINDINGS);

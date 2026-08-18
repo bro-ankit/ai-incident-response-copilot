@@ -80,9 +80,9 @@ describe('SearchService Unit Test', () => {
           { id: IDS[1], text: `${RUNBOOK_2.title} ${RUNBOOK_2.content}` },
         ]);
 
-        const similarCall = runbooksRepository.findSimilarIds.mock.invocationCallOrder[0]!;
-        const lexicalCall = runbooksRepository.findByLexical.mock.invocationCallOrder[0]!;
-        const byIdsCall = runbooksRepository.findByIds.mock.invocationCallOrder[0]!;
+        const similarCall = runbooksRepository.findSimilarIds.mock.invocationCallOrder[0];
+        const lexicalCall = runbooksRepository.findByLexical.mock.invocationCallOrder[0];
+        const byIdsCall = runbooksRepository.findByIds.mock.invocationCallOrder[0];
         expect(similarCall).toBeLessThan(byIdsCall);
         expect(lexicalCall).toBeLessThan(byIdsCall);
       });
